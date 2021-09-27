@@ -1,0 +1,47 @@
+[
+    {
+        "SIDO_CODE": 11,
+        "SIGUNGU_CODE": 230,
+        "ADDRESS_NAME": "동대문구"
+    },
+    {
+        "SIDO_CODE": 11,
+        "SIGUNGU_CODE": 320,
+        "ADDRESS_NAME": "도봉구"
+    },
+    {
+        "SIDO_CODE": 11,
+        "SIGUNGU_CODE": 410,
+        "ADDRESS_NAME": "서대문구"
+    },
+    {
+        "SIDO_CODE": 11,
+        "SIGUNGU_CODE": 440,
+        "ADDRESS_NAME": "마포구"
+    },
+    {
+        "SIDO_CODE": 11,
+        "SIGUNGU_CODE": 260,
+        "ADDRESS_NAME": "중랑구"
+    },
+    {
+        "SIDO_CODE": 11,
+        "SIGUNGU_CODE": 350,
+        "ADDRESS_NAME": "노원구"
+    },
+    {
+        "SIDO_CODE": 11,
+        "SIGUNGU_CODE": 305,
+        "ADDRESS_NAME": "강북구"
+    },
+    {
+        "SIDO_CODE": 11,
+        "SIGUNGU_CODE": 290,
+        "ADDRESS_NAME": "성북구"
+    },
+    {
+        "SIDO_CODE": 36,
+        "SIGUNGU_CODE": 110,
+        "ADDRESS_NAME": "세종특별자치시"
+    }
+]
