@@ -6,6 +6,7 @@ from auth.controller.auth import Auth
 from building.controller.building import Building
 from building.controller.building_batch import BuildingBatch
 from areacode.controller.area_code import AreaCode
+from job.controller.job import Job
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 from config.settings import Settings
@@ -18,11 +19,12 @@ jwt = JWTManager(app)
 api = Api(app)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-api.add_resource(Building, '/api/buildings')
-api.add_resource(BuildingBatch, '/api/buildings/batch')
-api.add_resource(AreaCode, '/api/codes')
-api.add_resource(User, '/api/users')
-api.add_resource(Auth, '/api/auth')
+api.add_resource(Building, '/api/buildings') # 빌딩 컨트롤러
+api.add_resource(BuildingBatch, '/api/buildings/batch') # 빌딩 배치 컨트롤러
+api.add_resource(AreaCode, '/api/codes') # 지역코드 컨트롤러 (미사용)
+api.add_resource(User, '/api/users') # 유저 컨트롤러
+api.add_resource(Auth, '/api/auth') # 인증 컨트롤러
+api.add_resource(Job, '/api/job') # 스케줄 잡 컨트롤러
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5001)
