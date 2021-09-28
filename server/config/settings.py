@@ -23,3 +23,11 @@ class Settings:
     @staticmethod
     def return_jwt_access_token_expires():
         return os.getenv('JWT_ACCESS_TOKEN_EXPIRES')
+
+    @staticmethod
+    def return_zeepy_admin_email():
+        return os.getenv('ADMIN_EMAIL')
+
+    @staticmethod
+    def return_zeepy_admin_password():
+        return os.getenv('ADMIN_PASSWORD')
