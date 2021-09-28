@@ -45,6 +45,6 @@ def insert_job_report(event_code, event_data_list, trace_back):
             "run_type": event_data_list[2],
             "job_type": event_data_list[3],
             "trace_back": trace_back,
-            "event_time": datetime.datetime.now()
+            "event_time": str(datetime.datetime.now())
         }
     )

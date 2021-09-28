@@ -5,6 +5,8 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import AccessAlarmsIcon from '@mui/icons-material/AccessAlarms';
+import DescriptionIcon from '@mui/icons-material/Description';
 import { useHistory } from "react-router-dom";
 import { deleteCookie } from '../../utils/cookie';
 import styled from 'styled-components';
@@ -99,6 +101,24 @@ const DrawerBar = () => {
                     </DrawerIcon>
                     <DrawerText>
                         실험용 기능
+                    </DrawerText>
+                </DrawerItem>
+                <Divider />
+                <DrawerItem button onClick={() => { handleRoute("/schedule") }}>
+                    <DrawerIcon>
+                        <DescriptionIcon />
+                    </DrawerIcon>
+                    <DrawerText>
+                        스케줄 로그 저장소
+                    </DrawerText>
+                </DrawerItem>
+                <Divider />
+                <DrawerItem button onClick={() => { handleRoute("/schedule/register") }}>
+                    <DrawerIcon>
+                        <AccessAlarmsIcon />
+                    </DrawerIcon>
+                    <DrawerText>
+                        스케줄 등록
                     </DrawerText>
                 </DrawerItem>
                 <Divider />

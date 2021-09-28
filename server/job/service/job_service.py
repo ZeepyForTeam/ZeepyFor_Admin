@@ -20,7 +20,7 @@ class JobService:
         self.job_report_repository = JobReportDBHandler()
         self.parse = MongoDataParser()
 
-    def get_all(self, args):
+    def get_all(self):
         data = self.job_report_repository.find_item()
         response = jsonify(self.parse.parse_many(data))
         response.status_code = 200

@@ -7,6 +7,8 @@ import Login from './pages/login'
 import Register from './pages/register'
 import Storage from './pages/storage'
 import Test from './pages/test'
+import Schedule from './pages/schedule'
+import ScheduleRegister from './pages/schedule-register'
 import React from 'react'
 
 const App = () => {
@@ -43,6 +45,12 @@ const App = () => {
                 </Route>
                 <Route path="/test">
                     <Test />
+                </Route>
+                <Route path="/schedule">
+                    <Schedule />
+                </Route>
+                <Route path="/schedule/register">
+                    <ScheduleRegister />
                 </Route>
                 <Route path="/register">
                     <Register />
