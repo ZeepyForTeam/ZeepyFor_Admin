@@ -36,7 +36,7 @@ class JobService:
         # SCHEDULER PARAMS
         current_time = datetime.datetime.now()
         next_time = datetime.datetime.strptime(args.run_date, "%Y-%m-%d %H:%M:%S")
-        job_id = f"{nickname}/{run_type}/date/{str(current_time)}"
+        job_id = f"{nickname}/{str(current_time)}/{run_type}/date"
 
         if run_type == "MOLIT":
             self.scheduler.add_job_one_time(
@@ -88,7 +88,7 @@ class JobService:
         cron_day = args.cron_day
         cron_hour = args.cron_hour
         cron_minute = args.cron_minute
-        job_id = f"{nickname}/{run_type}/cron/{str(current_time)}"
+        job_id = f"{nickname}/{str(current_time)}/{run_type}/cron"
 
         if run_type == "MOLIT":
             self.scheduler.add_job_cron_all_month(
