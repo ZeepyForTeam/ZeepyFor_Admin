@@ -7,7 +7,7 @@ class JobDBHandler:
         host = "localhost"
         port = "27017"
         self.db_name = "zeepy_db"
-        self.collection_name = "job"
+        self.collection_name = "jobs"
         self.client = MongoClient(host, int(port))[self.db_name][self.collection_name]
 
     def insert_item_one(self, data):

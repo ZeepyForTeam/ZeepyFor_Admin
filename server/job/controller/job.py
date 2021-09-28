@@ -13,12 +13,6 @@ class Job(Resource):
         args = self.__make_get_arg()
         return self.job_service.get_all()
 
-    # 잡 등록
-    @jwt_required()
-    def post(self):
-        args = self.__make_post_arg()
-        return self.job_service.create(args)
-
     # 스케줄링 된 잡 삭제
     @jwt_required()
     def delete(self):
@@ -29,12 +23,6 @@ class Job(Resource):
     Argument Create
     - private method
     '''
-
-    def __make_post_arg(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('type', type=str, required=True)
-        parser.add_argument('schedule_time', type=int, required=True)
-        return parser.parse_args()
 
     def __make_get_arg(self):
         parser = reqparse.RequestParser()

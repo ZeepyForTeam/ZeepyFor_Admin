@@ -1,11 +1,16 @@
  #-*- coding: utf-8 -*- 
 from flask import jsonify
 from repository.job_db_handler import JobDBHandler
+from job.scheduler.scheduler import Scheduler
+from execute.executer import Executer
 from helper.mongo_data_parser import MongoDataParser
 from bson.objectid import ObjectId
+import datetime
 
 class JobService:
     def __init__(self):
+        self.scheduler = Scheduler()
+        self.executer = Executer()
         self.job_repository = JobDBHandler()
         self.parse = MongoDataParser()
 
@@ -15,15 +20,111 @@ class JobService:
         response.status_code = 200
         return response
 
-    def create(self, args):
-        _id = self.job_repository.insert_item_one(args)
-        response = jsonify()
-        response.status_code = 201
-        response.headers['location'] = f"/api/buildings/{str(_id)}"
-        response.autocorrect_location_header = False
+    def set_date_schedule(self, args):
+        run_type = args.run_type
+        nickname = args.nickname
+        current_time = datetime.datetime.now()
+        next_time = datetime.datetime.strptime(args.run_date, "%Y-%m-%d %H:%M:%S")
+        job_id = f"{nickname}/{run_type}/date/{str(current_time)}"
+
+        if run_type == "MOLIT":
+            self.scheduler.add_job_one_time(
+                self.executer.molit_jobs,
+                job_id,
+                next_time
+            )
+        elif run_type == "KAKAO":
+            self.scheduler.add_job_one_time(
+                self.executer.kakao_geocoder_jobs,
+                job_id,
+                next_time
+            )
+        elif run_type == "VWORLD":
+            self.scheduler.add_job_one_time(
+                self.executer.vworld_geocoder_jobs,
+                job_id,
+                next_time
+            )
+        elif run_type == "ZEEPY_BATCH_BUILDING":
+            self.scheduler.add_job_one_time(
+                self.executer.zeepy_building_batch_insert_jobs,
+                job_id,
+                next_time
+            )
+        elif run_type == "ZEEPY_BUILDING":
+            self.scheduler.add_job_one_time(
+                self.executer.zeepy_building_insert_jobs,
+                job_id,
+                next_time
+            )
+        else:
+            response = jsonify(message="run_type is mismatching. check your parameters")
+            response.status_code = 400
+            return response
+        
+        response = jsonify(message="complete scheduled jobs")
+        response.status_code = 200
         return response
     
-    def delete_by_id(self, args):
+    def set_cron_schedule(self, args):
+        run_type = args.run_type
+        nickname = args.nickname
+        current_time = datetime.datetime.now()
+        cron_day = args.cron_day
+        cron_hour = args.cron_hour
+        cron_minute = args.cron_minute
+        job_id = f"{nickname}/{run_type}/cron/{str(current_time)}"
+
+        if run_type == "MOLIT":
+            self.scheduler.add_job_cron_all_month(
+                self.executer.molit_jobs,
+                job_id,
+                cron_day,
+                cron_hour,
+                cron_minute
+            )
+        elif run_type == "KAKAO":
+            self.scheduler.add_job_cron_all_month(
+                self.executer.kakao_geocoder_jobs,
+                job_id,
+                cron_day,
+                cron_hour,
+                cron_minute
+            )
+        elif run_type == "VWORLD":
+            self.scheduler.add_job_cron_all_month(
+                self.executer.vworld_geocoder_jobs,
+                job_id,
+                cron_day,
+                cron_hour,
+                cron_minute
+            )
+        elif run_type == "ZEEPY_BATCH_BUILDING":
+            self.scheduler.add_job_cron_all_month(
+                self.executer.zeepy_building_batch_insert_jobs,
+                job_id,
+                cron_day,
+                cron_hour,
+                cron_minute
+            )
+        elif run_type == "ZEEPY_BUILDING":
+            self.scheduler.add_job_cron_all_month(
+                self.executer.zeepy_building_insert_jobs,
+                job_id,
+                cron_day,
+                cron_hour,
+                cron_minute
+            )
+        else:
+            response = jsonify(message="type is mismatching. check your parameters")
+            response.status_code = 400
+            return response
+        
+        response = jsonify(message="complete scheduled jobs")
+        response.status_code = 200
+        return response
+    
+    def delete_schedule(self, args):
         self.job_repository.delete_item_one({"_id" : ObjectId(args._id)})
         response = jsonify()
         response.status_code = 204
