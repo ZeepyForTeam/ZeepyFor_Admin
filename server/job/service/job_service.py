@@ -3,7 +3,8 @@ from flask import jsonify
 from repository.job_db_handler import JobDBHandler
 from job.scheduler.scheduler import Scheduler
 from execute.executer import Executer
-from execute.jobs.molit_api_job import (molit_api_cron_job, molit_api_compare_date_job)
+from execute.jobs.molit_api_job import (molit_api_cron_job, molit_api_job)
+from execute.jobs.kakao_geocoder_job import (kakao_geocoder_api_cron_job, kakao_geocoder_api_job)
 from helper.mongo_data_parser import MongoDataParser
 from bson.objectid import ObjectId
 import datetime
@@ -37,16 +38,17 @@ class JobService:
 
         if run_type == "MOLIT":
             self.scheduler.add_job_one_time(
-                molit_api_compare_date_job,
+                molit_api_job,
                 job_id,
                 next_time,
                 [start_year, start_month, end_year, end_month]
             )
         elif run_type == "KAKAO":
             self.scheduler.add_job_one_time(
-                self.executer.kakao_geocoder_jobs,
+                kakao_geocoder_api_job,
                 job_id,
-                next_time
+                next_time,
+                [start_year, start_month]
             )
         elif run_type == "VWORLD":
             self.scheduler.add_job_one_time(
@@ -94,7 +96,7 @@ class JobService:
             )
         elif run_type == "KAKAO":
             self.scheduler.add_job_cron_all_month(
-                self.executer.kakao_geocoder_jobs,
+                kakao_geocoder_api_cron_job,
                 job_id,
                 cron_day,
                 cron_hour,

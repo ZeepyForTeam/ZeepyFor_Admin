@@ -81,7 +81,7 @@ def molit_api_cron_job(): # 부동산 API 사용 함수
     building_repository.insert_item_many(building_upload_list)
 
 
-def molit_api_compare_date_job(start_year, start_month, end_year, end_month): # 부동산 API 사용 함수
+def molit_api_job(start_year, start_month, end_year, end_month): # 부동산 API 사용 함수
     apartment = False
     officetels = True
     family = False

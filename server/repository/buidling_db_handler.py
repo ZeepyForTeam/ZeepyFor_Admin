@@ -18,6 +18,13 @@ class BuildingDBHandler:
         result = self.client.insert_many(datas).inserted_ids
         return result
 
+    def save_item_one(self, data):
+        self.client.save(data)
+
+    def save_item_many(self, datas):
+        for data in datas:
+            self.client.save(data)
+
     def find_item_one(self, condition=None):
         result = self.client.find_one(condition)
         return result
