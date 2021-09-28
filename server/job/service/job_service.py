@@ -6,6 +6,7 @@ from execute.executer import Executer
 from execute.jobs.molit_api_job import (molit_api_cron_job, molit_api_job)
 from execute.jobs.kakao_geocoder_job import (kakao_geocoder_api_cron_job, kakao_geocoder_api_job)
 from execute.jobs.insert_building_job import (insert_building_cron_job, insert_building_job)
+from execute.jobs.batch_insert_building_job import (batch_insert_building_cron_job, batch_insert_building_job, batch_insert_all_building_job)
 from helper.mongo_data_parser import MongoDataParser
 from bson.objectid import ObjectId
 import datetime
@@ -59,9 +60,10 @@ class JobService:
             )
         elif run_type == "ZEEPY_BATCH_BUILDING":
             self.scheduler.add_job_one_time(
-                self.executer.zeepy_building_batch_insert_jobs,
+                batch_insert_building_job,
                 job_id,
-                next_time
+                next_time,
+                [start_year, start_month]
             )
         elif run_type == "ZEEPY_BUILDING":
             self.scheduler.add_job_one_time(
@@ -114,7 +116,7 @@ class JobService:
             )
         elif run_type == "ZEEPY_BATCH_BUILDING":
             self.scheduler.add_job_cron_all_month(
-                self.executer.zeepy_building_batch_insert_jobs,
+                batch_insert_building_cron_job,
                 job_id,
                 cron_day,
                 cron_hour,

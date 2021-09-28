@@ -1,6 +1,8 @@
  #-*- coding: utf-8 -*- 
 
 from helper.zeepy_for_server_helper import ZeepyForServerHelper
+from repository.buidling_db_handler import BuildingDBHandler
+from helper.mongo_data_parser import MongoDataParser
 from datetime import datetime
 import os
 import json
@@ -14,107 +16,73 @@ from datetime import datetime
 - API 호출 한번
 - 배포용 용 익스큐터
 '''
+def make_buidings_dict():
+    result = {}
+    zeepy = ZeepyForServerHelper()
+    response_get_building = zeepy.get_buildings()
+    building_list = json.loads(response_get_building.content)
+    for building in building_list:
+        result[building["fullNumberAddress"]] = building["id"]
+    return result
 
-def upload_json_data_in_one_directory(directory, filename):
-    building_list = []
+def bulk_insert_building_in_zeepy(building_list):
+    zeepy_building_list = []
 
-    print(f"json_data_add_location3/{directory}/{filename}")
-
-    f = open(f"json_data_add_location3/{directory}/{filename}", "r", encoding="UTF8")
-    json_data_list = json.load(f)
-    building_type = ""
-
-    if "다가구" in filename:
-        return
-
-    if "오피스텔" in filename:
-        building_type = "OFFICETEL"
-    elif "연립다세대" in filename:
-        building_type = "ROWHOUSE"
-    else:
-        building_type = "UNKNOWN"
-    
-    sie = "서울특별시"
-
-    if "세종특별자치시" in filename: 
-        sie = "세종특별자치시"
-
-    split_filename = filename[:-5].split("_")
+    zeepy = ZeepyForServerHelper()
     regex = "\(.*\)|\s-\s.*"
 
-    for json_data in json_data_list:
+    for building in building_list:
 
-        full_number_address = ""
+        if 'latitude' not in building or 'longitude' not in building:
+            continue
+
+        if 'full_address' not in building or building['full_address'] == "":
+            continue
+
         full_road_address = ""
-        short_number_address = ""
         short_road_address = ""
-
-        gue = split_filename[-1].replace(" ", "")
-        dong = json_data['dong'].replace(" ", "") 
-        bunji = json_data['jibun'].replace(" ", "")
-        apart = json_data['apartment'].replace(" ", "")
         
-        apartmentName = apart
-        shortAddress = f"{sie} {gue}"
-
-        if sie == "세종특별자치시":
-            shortAddress = f"{sie}"
-
-        area_code = int(json_data['area_code'])
-
         build_year = 0
 
-        if json_data['build_year'] != '':
-            build_year = int(json_data['build_year'])
+        if building['build_year'] != '':
+            build_year = building['build_year']
+        
+        apartmentName = building['apartment'].replace(" ", "")
+        shortAddress = building['short_address']
+        full_number_address = building['full_number_address']  
+        short_number_address = building['short_number_address']
+        building_type = building['type']
+        area_code = building['area_code']
+        using_area = building['using_area']
+        latitude = building['latitude']
+        longitude = building['longitude']
+        address = building['full_address']
 
-        using_area = float(json_data['using_area'])
-
-        if 'latitude' not in json_data or 'longitude' not in json_data:
-            continue
-        if json_data['full_address'] == "":
-            continue
-
-        latitude = float(json_data['latitude'])
-        longitude = float(json_data['longitude'])
-        address = json_data['full_address']
-
-        deal_year = int(json_data['deal_year'])
-        deal_month = int(json_data['deal_month'])
-        deal_day = int(json_data['deal_day'])
+        deal_year = building['deal_year']
+        deal_month = building['deal_month']
+        deal_day = building['deal_day']
 
         deal_date = int(time.mktime(datetime.strptime(f"{deal_year}-{deal_month}-{deal_day}", '%Y-%m-%d').timetuple())) * 1000
-        floor = int(json_data['floor'])
-        monthly_rent = int(json_data['monthly_rent'])
-        deposit = int(json_data['deposit'].replace(",", ""))
+        floor = building['floor']
+        monthly_rent = building['monthly_rent']
+        deposit = building['deposit']
 
         regex_address = re.sub(regex, '', address) # 정규식을 통해 괄호와 괄호안 문자열 제거
         replace_address = " ".join(regex_address.split())
 
         full_road_address = f"{replace_address} {apartmentName}"
+
         short_road_address_none_apart = replace_address.replace(shortAddress, "").strip()
         short_road_address = f"{short_road_address_none_apart} {apartmentName}"
-        
-        if sie != "세종특별자치시":
-            full_number_address = f"{sie} {gue} {dong} {bunji} {apart}"
-            short_number_address = f"{dong} {bunji} {apart}"
-        else:
-            full_number_address = f"{sie} {dong} {bunji} {apart}"
-            short_number_address = f"{dong} {bunji} {apart}"
 
         full_road_address = full_road_address.replace("  ", " ")
         short_road_address = short_road_address.replace("  ", " ")
-        full_number_address = full_number_address.replace("  ", " ")
-        short_number_address = short_number_address.replace("  ", " ")
 
         full_road_address = full_road_address.replace("  ", " ")
         short_road_address = short_road_address.replace("  ", " ")
-        full_number_address = full_number_address.replace("  ", " ")
-        short_number_address = short_number_address.replace("  ", " ")
 
         full_road_address = full_road_address.replace("  ", " ")
         short_road_address = short_road_address.replace("  ", " ")
-        full_number_address = full_number_address.replace("  ", " ")
-        short_number_address = short_number_address.replace("  ", " ")
 
         building_data = {
             'buildYear' : build_year,
@@ -131,31 +99,158 @@ def upload_json_data_in_one_directory(directory, filename):
             'buildingType' : building_type,
         }
 
-        building_list.append(building_data)
 
-    return building_list
-        
+        zeepy_building_list.append(building_data)
 
-def bulk_building_in_directory_json_data():
+    return zeepy_building_list
+
+def bulk_insert_building_deal_in_zeepy(building_list, building_dict):
+    zeepy_building_deal_list = []
+
     zeepy = ZeepyForServerHelper()
-    directoies_about_molit_json = os.listdir("json_data_add_location3")
-    building_list = []
-    for directory in directoies_about_molit_json:
-        print(directory)
+    regex = "\(.*\)|\s-\s.*"
 
-        if directory == "error":
-            break
+    for building in building_list:
 
-        molit_jsons_name = os.listdir(f"json_data_add_location3/{directory}")
+        if 'latitude' not in building or 'longitude' not in building:
+            continue
 
-        for molit_json_name in molit_jsons_name:
-            building_list += upload_json_data_in_one_directory(directory, molit_json_name)
-    
+        if 'full_address' not in building or building['full_address'] == "":
+            continue
+
+        full_road_address = ""
+        short_road_address = ""
+        
+        build_year = 0
+
+        if building['build_year'] != '':
+            build_year = building['build_year']
+        
+        apartmentName = building['apartment'].replace(" ", "")
+        shortAddress = building['short_address']
+        full_number_address = building['full_number_address']  
+        short_number_address = building['short_number_address']
+        building_type = building['type']
+        area_code = building['area_code']
+        using_area = building['using_area']
+        latitude = building['latitude']
+        longitude = building['longitude']
+        address = building['full_address']
+
+        deal_year = building['deal_year']
+        deal_month = building['deal_month']
+        deal_day = building['deal_day']
+
+        deal_date = int(time.mktime(datetime.strptime(f"{deal_year}-{deal_month}-{deal_day}", '%Y-%m-%d').timetuple())) * 1000
+        floor = building['floor']
+        monthly_rent = building['monthly_rent']
+        deposit = building['deposit']
+
+        regex_address = re.sub(regex, '', address) # 정규식을 통해 괄호와 괄호안 문자열 제거
+        replace_address = " ".join(regex_address.split())
+
+        full_road_address = f"{replace_address} {apartmentName}"
+
+        short_road_address_none_apart = replace_address.replace(shortAddress, "").strip()
+        short_road_address = f"{short_road_address_none_apart} {apartmentName}"
+
+        full_road_address = full_road_address.replace("  ", " ")
+        short_road_address = short_road_address.replace("  ", " ")
+
+        full_road_address = full_road_address.replace("  ", " ")
+        short_road_address = short_road_address.replace("  ", " ")
+
+        full_road_address = full_road_address.replace("  ", " ")
+        short_road_address = short_road_address.replace("  ", " ")
+
+        if full_number_address not in building_dict:
+            continue
+
+        building_data = {
+            'buildingId' : building_dict[full_number_address],
+            'buildYear' : build_year,
+            'apartmentName' : apartmentName,
+            'shortAddress' : shortAddress,
+            'fullRoadNameAddress' : full_road_address,
+            'shortRoadNameAddress' : short_road_address,
+            'fullNumberAddress' : full_number_address,
+            'shortNumberAddress' : short_number_address,
+            'exclusivePrivateArea' : using_area,
+            'areaCode' : area_code,
+            'latitude' : latitude,
+            'longitude' : longitude,
+            'buildingType' : building_type,
+            'dealDate' : deal_date,
+            'deposit' : deposit,
+            'monthlyRent' : monthly_rent,
+            'dealCost' : 0,
+            'floor' : floor
+        }
+
+        zeepy_building_deal_list.append(building_data)
+
+    return zeepy_building_deal_list
+
+def loop_to_get_all_building_list(building_repository, parse):
+    total = building_repository.count_items()
+    total_page=((total // 50) + 1)
+    result = []
+    for page in range(1, total_page + 1):
+        data = building_repository.find_item_pagenate(page, None)
+        result += parse.parse_many_no_op_id(data)
+    return result
+
+def batch_insert_all_building_job():
+    zeepy = ZeepyForServerHelper()
+    parse = MongoDataParser()
+    building_repository = BuildingDBHandler()
+    building_parse_list = loop_to_get_all_building_list(building_repository, parse)
+    ## 건물 데이터 삽입
+    building_list = bulk_insert_building_in_zeepy(building_parse_list)
     response_batch_insert_building = zeepy.batch_insert_building(building_list)
     response_batch_insert_building.close()
+    ## 건물 거래 정보 삽입
+    building_dict = make_buidings_dict()
+    building_deal_list = bulk_insert_building_deal_in_zeepy(building_parse_list, building_dict)
+    response_batch_insert_building = zeepy.batch_insert_building_deal(building_deal_list)
+    response_batch_insert_building.close()
 
-def main(): # 매인 함수
-    bulk_building_in_directory_json_data()
-    
-if __name__ == "__main__":
-	main()
+def batch_insert_building_job(start_year, start_month):
+    zeepy = ZeepyForServerHelper()
+    parse = MongoDataParser()
+    building_repository = BuildingDBHandler()
+
+    building_find_list = building_repository.find_item(
+        {"deal_year" : start_year, 'deal_month': start_month}
+    )
+    building_parse_list = parse.parse_many_no_op_id(building_find_list)
+    ## 건물 데이터 삽입
+    building_list = bulk_insert_building_in_zeepy(building_parse_list)
+    response_batch_insert_building = zeepy.batch_insert_building(building_list)
+    response_batch_insert_building.close()
+    ## 건물 거래 정보 삽입
+    building_dict = make_buidings_dict()
+    building_deal_list = bulk_insert_building_deal_in_zeepy(building_parse_list, building_dict)
+    response_batch_insert_building = zeepy.batch_insert_building_deal(building_deal_list)
+    response_batch_insert_building.close()
+
+def batch_insert_building_cron_job():
+    zeepy = ZeepyForServerHelper()
+    parse = MongoDataParser()
+    building_repository = BuildingDBHandler()
+    current_date_year = datetime.today().year ## 비교 요청 첫번째 년도
+    current_date_month = datetime.today().month ## 비교 요청 첫번째 달수
+
+    building_find_list = building_repository.find_item(
+        {"deal_year" : current_date_year, 'deal_month': current_date_month}
+    )
+    building_parse_list = parse.parse_many_no_op_id(building_find_list)
+    ## 건물 데이터 삽입
+    building_list = bulk_insert_building_in_zeepy(building_parse_list)
+    response_batch_insert_building = zeepy.batch_insert_building(building_list)
+    response_batch_insert_building.close()
+    ## 건물 거래 정보 삽입
+    building_dict = make_buidings_dict()
+    building_deal_list = bulk_insert_building_deal_in_zeepy(building_parse_list, building_dict)
+    response_batch_insert_building = zeepy.batch_insert_building_deal(building_deal_list)
+    response_batch_insert_building.close()
