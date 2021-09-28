@@ -40,13 +40,14 @@ class Scheduler:
     def remove_job(self, job_id):
         self.scheduler.remove_job(job_id)
     
-    def add_job_one_time(self, execute_job_func, job_id, datetime):
+    def add_job_one_time(self, execute_job_func, job_id, datetime, args=[]):
         self.scheduler.add_job(
             execute_job_func, 
             'date', 
             run_date=datetime, 
             id=job_id, 
-            timezone="Asia/Seoul"
+            timezone="Asia/Seoul",
+            args=args
         )
 
     def add_job_interval(self, execute_job_func, job_id, interval_week):

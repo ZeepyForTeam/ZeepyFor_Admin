@@ -5,28 +5,47 @@ from datetime import datetime
 import os
 import json
 import time
+import re
 from datetime import datetime
+
+'''
+일반 인서트 방식
+- 빌딩, 빌딩 거래 내역 인서트
+- 빌딩 한개당 한번의 API 호출
+- 테스트 용 익스큐터
+'''
 
 def upload_json_data_in_one_directory(directory, filename):
     zeepy = ZeepyForServerHelper()
     print(f"json_data_add_location2/{directory}/{filename}")
     f = open(f"json_data_add_location2/{directory}/{filename}", "r", encoding="UTF8")
     json_data_list = json.load(f)
+    building_type = ""
 
     if "다가구" in filename:
         return
     
+    if "오피스텔" in filename:
+        building_type = "OFFICETEL"
+    elif "연립다세대" in filename:
+        building_type = "ROWHOUSE"
+    else:
+        building_type = "UNKNOWN"
+
     sie = "서울특별시"
 
     if "세종특별자치시" in filename: 
         sie = "세종특별자치시"
 
     split_filename = filename[:-5].split("_")
+    regex = "\(.*\)|\s-\s.*"
 
     for json_data in json_data_list:
-        location_string = ""
 
-        
+        full_number_address = ""
+        full_road_address = ""
+        short_number_address = ""
+        short_road_address = ""
 
         gue = split_filename[-1].replace(" ", "")
         dong = json_data['dong'].replace(" ", "") 
@@ -34,7 +53,10 @@ def upload_json_data_in_one_directory(directory, filename):
         apart = json_data['apartment'].replace(" ", "")
         
         apartmentName = apart
-        shortAddress = f"{dong} {bunji}번지"
+        shortAddress = f"{sie} {gue}"
+
+        if sie == "세종특별자치시":
+            shortAddress = f"{sie}"
 
         area_code = int(json_data['area_code'])
 
@@ -61,23 +83,52 @@ def upload_json_data_in_one_directory(directory, filename):
         monthly_rent = int(json_data['monthly_rent'])
         deposit = int(json_data['deposit'].replace(",", ""))
 
+        regex_address = re.sub(regex, '', address) # 정규식을 통해 괄호와 괄호안 문자열 제거
+        replace_address = " ".join(regex_address.split())
+
+        full_road_address = f"{replace_address} {apartmentName}"
+        short_road_address_none_apart = replace_address.replace(shortAddress, "").strip()
+        short_road_address = f"{short_road_address_none_apart} {apartmentName}"
+        
         if sie != "세종특별자치시":
-            location_string = f"{sie} {gue} {dong} {bunji} {apart}"
+            full_number_address = f"{sie} {gue} {dong} {bunji} {apart}"
+            short_number_address = f"{dong} {bunji} {apart}"
         else:
-            location_string = f"{sie} {dong} {bunji} {apart}"
+            full_number_address = f"{sie} {dong} {bunji} {apart}"
+            short_number_address = f"{dong} {bunji} {apart}"
+
+        full_road_address = full_road_address.replace("  ", " ")
+        short_road_address = short_road_address.replace("  ", " ")
+        full_number_address = full_number_address.replace("  ", " ")
+        short_number_address = short_number_address.replace("  ", " ")
+
+        full_road_address = full_road_address.replace("  ", " ")
+        short_road_address = short_road_address.replace("  ", " ")
+        full_number_address = full_number_address.replace("  ", " ")
+        short_number_address = short_number_address.replace("  ", " ")
+
+        full_road_address = full_road_address.replace("  ", " ")
+        short_road_address = short_road_address.replace("  ", " ")
+        full_number_address = full_number_address.replace("  ", " ")
+        short_number_address = short_number_address.replace("  ", " ")
 
         building_data = {
             'buildYear' : build_year,
             'apartmentName' : apartmentName,
             'shortAddress' : shortAddress,
-            'address' : address,
+            'fullRoadNameAddress' : full_road_address,
+            'shortRoadNameAddress' : short_road_address,
+            'fullNumberAddress' : full_number_address,
+            'shortNumberAddress' : short_number_address,
             'exclusivePrivateArea' : using_area,
             'areaCode' : area_code,
             'latitude' : latitude,
             'longitude' : longitude,
+            'buildingType' : building_type,
         }
 
-        response_get_building = zeepy.get_building(location_string)
+        response_get_building = zeepy.get_building(full_number_address)
+        # print(response_get_building)
 
         if response_get_building.status_code == 404:
             response_upload = zeepy.upload_building(building_data)
@@ -109,7 +160,7 @@ def upload_json_data_in_one_directory(directory, filename):
             response_last.close()
 
         response_get_building_deal.close()
-        
+        time.sleep(1)
 
 def upload_all_in_directory_json_data():
     directoies_about_molit_json = os.listdir("json_data_add_location2")

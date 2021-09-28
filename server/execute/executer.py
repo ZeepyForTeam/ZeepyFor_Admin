@@ -3,7 +3,7 @@ import os
 
 class Executer:
     def __init__(self):
-        self.type = ["MOLIT", "VWORLD", "KAKAO", "ZEEPY_BATCH_BUILDING", "ZEEPY_BUILDING"]
+        self.name = "mock"
 
     def molit_jobs(self):
         print("molit_geocoder_jobs")

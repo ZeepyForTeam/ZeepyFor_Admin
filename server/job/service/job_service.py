@@ -3,6 +3,7 @@ from flask import jsonify
 from repository.job_db_handler import JobDBHandler
 from job.scheduler.scheduler import Scheduler
 from execute.executer import Executer
+from execute.jobs.molit_api_job import (molit_api_cron_job, molit_api_compare_date_job)
 from helper.mongo_data_parser import MongoDataParser
 from bson.objectid import ObjectId
 import datetime
@@ -21,17 +22,25 @@ class JobService:
         return response
 
     def set_date_schedule(self, args):
+        # JOB TYPE
         run_type = args.run_type
         nickname = args.nickname
+        # JOB ARGUMENT
+        start_year = args.arg_start_year
+        start_month = args.arg_start_month
+        end_year = args.arg_end_year
+        end_month = args.arg_end_month
+        # SCHEDULER PARAMS
         current_time = datetime.datetime.now()
         next_time = datetime.datetime.strptime(args.run_date, "%Y-%m-%d %H:%M:%S")
         job_id = f"{nickname}/{run_type}/date/{str(current_time)}"
 
         if run_type == "MOLIT":
             self.scheduler.add_job_one_time(
-                self.executer.molit_jobs,
+                molit_api_compare_date_job,
                 job_id,
-                next_time
+                next_time,
+                [start_year, start_month, end_year, end_month]
             )
         elif run_type == "KAKAO":
             self.scheduler.add_job_one_time(
@@ -77,7 +86,7 @@ class JobService:
 
         if run_type == "MOLIT":
             self.scheduler.add_job_cron_all_month(
-                self.executer.molit_jobs,
+                molit_api_cron_job,
                 job_id,
                 cron_day,
                 cron_hour,

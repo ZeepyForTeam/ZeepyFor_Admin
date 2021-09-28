@@ -22,4 +22,8 @@ class JobDate(Resource):
         parser.add_argument('nickname', type=str, required=True)
         parser.add_argument('run_type', type=str, required=True)
         parser.add_argument('run_date', type=str, required=True)
+        parser.add_argument('arg_start_year', type=int, required=True)
+        parser.add_argument('arg_start_month', type=int, required=True)
+        parser.add_argument('arg_end_year', type=int, required=True)
+        parser.add_argument('arg_end_month', type=int, required=True)
         return parser.parse_args()
