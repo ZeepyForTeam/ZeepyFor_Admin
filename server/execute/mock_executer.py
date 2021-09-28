@@ -1,7 +1,7 @@
  #-*- coding: utf-8 -*- 
 import os 
 
-class Executer:
+class MockExecuter:
     def __init__(self):
         self.name = "mock"
 

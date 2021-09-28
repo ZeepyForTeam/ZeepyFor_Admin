@@ -1,8 +1,9 @@
  #-*- coding: utf-8 -*- 
 from flask import jsonify
 from repository.job_db_handler import JobDBHandler
+from repository.job_report_db_handler import JobReportDBHandler
 from job.scheduler.scheduler import Scheduler
-from execute.executer import Executer
+from execute.mock_executer import MockExecuter
 from execute.jobs.molit_api_job import (molit_api_cron_job, molit_api_job)
 from execute.jobs.kakao_geocoder_job import (kakao_geocoder_api_cron_job, kakao_geocoder_api_job)
 from execute.jobs.insert_building_job import (insert_building_cron_job, insert_building_job)
@@ -14,12 +15,13 @@ import datetime
 class JobService:
     def __init__(self):
         self.scheduler = Scheduler()
-        self.executer = Executer()
+        self.mock_executer = MockExecuter()
         self.job_repository = JobDBHandler()
+        self.job_report_repository = JobReportDBHandler()
         self.parse = MongoDataParser()
 
     def get_all(self, args):
-        data = self.job_repository.find_item()
+        data = self.job_report_repository.find_item()
         response = jsonify(self.parse.parse_many(data))
         response.status_code = 200
         return response
@@ -54,7 +56,7 @@ class JobService:
             )
         elif run_type == "VWORLD":
             self.scheduler.add_job_one_time(
-                self.executer.vworld_geocoder_jobs,
+                self.mock_executer.vworld_geocoder_jobs,
                 job_id,
                 next_time
             )
@@ -108,7 +110,7 @@ class JobService:
             )
         elif run_type == "VWORLD":
             self.scheduler.add_job_cron_all_month(
-                self.executer.vworld_geocoder_jobs,
+                self.mock_executer.vworld_geocoder_jobs,
                 job_id,
                 cron_day,
                 cron_hour,
@@ -140,7 +142,7 @@ class JobService:
         return response
     
     def delete_schedule(self, args):
-        self.job_repository.delete_item_one({"_id" : ObjectId(args._id)})
+        self.scheduler.remove_job(args._id)
         response = jsonify()
         response.status_code = 204
         return response
