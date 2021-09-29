@@ -5,7 +5,7 @@ import { redirect } from '../../utils/redirect';
 import { validate } from '../../utils/cookie';
 import React from 'react'
 
-const ScheduleWait = () => {
+const ScheduleWait = ({ setErrorAlert, setSuccessAlert, setAlertMessage, }) => {
 
     React.useEffect(() => {
         if (!validate("token")) redirect("/login");
@@ -14,7 +14,11 @@ const ScheduleWait = () => {
     return (
         <Box sx={{ display: 'flex' }}>
             <DrawerBar></DrawerBar>
-            <ScheduleWaitDashboard></ScheduleWaitDashboard>
+            <ScheduleWaitDashboard
+                setErrorAlert={setErrorAlert}
+                setSuccessAlert={setSuccessAlert}
+                setAlertMessage={setAlertMessage}
+            ></ScheduleWaitDashboard>
         </Box>
     );
 }

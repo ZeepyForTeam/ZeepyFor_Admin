@@ -17,7 +17,7 @@ class Job(Resource):
     @jwt_required()
     def delete(self):
         args = self.__make_delete_arg()
-        return self.job_service.delete_by_id(args)
+        return self.job_service.delete_schedule(args)
 
     '''
     Argument Create

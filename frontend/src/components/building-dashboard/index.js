@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import React from 'react'
-import { get, post } from '../../utils/api';
+import { get } from '../../utils/api';
 import { redirect } from '../../utils/redirect';
 import { getCookie, deleteCookie } from '../../utils/cookie';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
@@ -53,7 +53,7 @@ const BuildingBody = styled.div`
     transition: all 0.1s ease;
 `;
 
-const BuildingDashboard = () => {
+const BuildingDashboard = ({ setErrorAlert, setSuccessAlert, setAlertMessage, }) => {
     const [page, setPage] = React.useState(1)
     const [totalElement, setTotalElement] = React.useState(null)
     const [totalPage, setTotalPage] = React.useState(null)
@@ -72,14 +72,19 @@ const BuildingDashboard = () => {
                     if (building.longitude === null) building.longitude = 0.0
                     buildings.push(building)
                 }
-                console.log(buildings)
                 setBuildingList(buildings)
                 setCurrentBuildingList(buildings)
                 setTotalPage(response.data.totalPage)
                 setTotalElement(response.data.total)
             }).catch(error => {
-                deleteCookie("token", "")
-                redirect("/login");
+                if (error.response.status === 422 || error.response.status === 401) {
+                    deleteCookie("token", "")
+                    redirect("/login");
+                } else {
+                    setAlertMessage("의도치 못한 버그 - 개발자에게 문의하세요")
+                    setErrorAlert(true)
+                    setTimeout(() => setErrorAlert(false), 2000);
+                }
             })
 
     }

@@ -42,13 +42,21 @@ const App = () => {
             </Box>
             <Switch>
                 <Route exact path="/storage">
-                    <Storage />
+                    <Storage
+                        setErrorAlert={setErrorAlert}
+                        setSuccessAlert={setSuccessAlert}
+                        setAlertMessage={setAlertMessage}
+                    />
                 </Route>
                 <Route exact path="/test">
                     <Test />
                 </Route>
                 <Route exact path="/schedule">
-                    <Schedule />
+                    <Schedule
+                        setErrorAlert={setErrorAlert}
+                        setSuccessAlert={setSuccessAlert}
+                        setAlertMessage={setAlertMessage}
+                    />
                 </Route>
                 <Route exact path="/schedule/register">
                     <ScheduleRegister
@@ -58,7 +66,11 @@ const App = () => {
                     />
                 </Route>
                 <Route exact path="/schedule/wait">
-                    <ScheduleWait />
+                    <ScheduleWait
+                        setErrorAlert={setErrorAlert}
+                        setSuccessAlert={setSuccessAlert}
+                        setAlertMessage={setAlertMessage}
+                    />
                 </Route>
                 <Route exact path="/register">
                     <Register />

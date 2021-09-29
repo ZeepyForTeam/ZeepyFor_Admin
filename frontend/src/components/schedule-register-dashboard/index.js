@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import React from 'react'
-import { postNoHeader } from '../../utils/api';
-import { setCookie, getCookie, deleteCookie } from '../../utils/cookie';
+import { getCookie, deleteCookie } from '../../utils/cookie';
 import { redirect } from '../../utils/redirect';
 import {
     runTypeList, jobTypeList, returnYearList, returnUpperYearList, returnMonthList, returnDayList, returnHourList, returnMinuteList
@@ -58,7 +57,7 @@ const OptionTitle = styled.div`
     color: #6289ED;
 `
 
-const LoginDashboard = ({ setErrorAlert, setSuccessAlert, setAlertMessage, }) => {
+const ScheduleRegisterDashboard = ({ setErrorAlert, setSuccessAlert, setAlertMessage, }) => {
     const dayList = returnDayList()
     const hourList = returnHourList()
     const minuteList = returnMinuteList()
@@ -157,7 +156,7 @@ const LoginDashboard = ({ setErrorAlert, setSuccessAlert, setAlertMessage, }) =>
         let date = new Date(year, month - 1, day, hour, minute, 0)
         let date_string = moment(date).format("YYYY-MM-DD HH:mm:ss")
 
-        postNoHeader("/api/jobs/date", {
+        post("/api/jobs/date", {
             body: {
                 nickname: nickname,
                 run_date: date_string,
@@ -172,29 +171,43 @@ const LoginDashboard = ({ setErrorAlert, setSuccessAlert, setAlertMessage, }) =>
             setSuccessAlert(true)
             setTimeout(() => setSuccessAlert(false), 2000);
         }).catch(error => {
-            setAlertMessage("작업등록 실패 - 개발자에게 문의하세요")
-            setErrorAlert(true)
-            setTimeout(() => setErrorAlert(false), 2000);
+            if (error.response.status === 422 || error.response.status === 401) {
+                deleteCookie("token", "")
+                redirect("/login");
+            } else {
+                setAlertMessage("작업등록 실패 - 개발자에게 문의하세요")
+                setErrorAlert(true)
+                setTimeout(() => setErrorAlert(false), 2000);
+            }
         })
     }
 
     const callCronJobAPI = () => {
-        postNoHeader("/api/jobs/cron", {
+        post("/api/jobs/cron", {
             body: {
                 nickname: nickname,
                 run_type: jobType,
                 cron_day: day,
                 cron_hour: hour,
                 cron_minute: minute,
+            },
+            headers: {
+                Authorization: "Bearer " + getCookie("token")
             }
+
         }).then(response => {
             setAlertMessage("작업등록 성공")
             setSuccessAlert(true)
             setTimeout(() => setSuccessAlert(false), 2000);
         }).catch(error => {
-            setAlertMessage("작업등록 실패 - 개발자에게 문의하세요")
-            setErrorAlert(true)
-            setTimeout(() => setErrorAlert(false), 2000);
+            if (error.response.status === 422 || error.response.status === 401) {
+                deleteCookie("token", "")
+                redirect("/login");
+            } else {
+                setAlertMessage("작업등록 실패 - 개발자에게 문의하세요")
+                setErrorAlert(true)
+                setTimeout(() => setErrorAlert(false), 2000);
+            }
         })
     }
 
@@ -450,4 +463,4 @@ const LoginDashboard = ({ setErrorAlert, setSuccessAlert, setAlertMessage, }) =>
     );
 }
 
-export default LoginDashboard;
+export default ScheduleRegisterDashboard;

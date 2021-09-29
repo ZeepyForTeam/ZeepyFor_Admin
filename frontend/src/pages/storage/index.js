@@ -5,7 +5,7 @@ import { redirect } from '../../utils/redirect';
 import { validate } from '../../utils/cookie';
 import React from 'react'
 
-const Storage = () => {
+const Storage = ({ setErrorAlert, setSuccessAlert, setAlertMessage, }) => {
 
     React.useEffect(() => {
         if (!validate("token")) redirect("/login");
@@ -14,7 +14,11 @@ const Storage = () => {
     return (
         <Box sx={{ display: 'flex' }}>
             <DrawerBar></DrawerBar>
-            <BuildingDashboard></BuildingDashboard>
+            <BuildingDashboard
+                setErrorAlert={setErrorAlert}
+                setSuccessAlert={setSuccessAlert}
+                setAlertMessage={setAlertMessage}
+            ></BuildingDashboard>
         </Box>
     );
 }

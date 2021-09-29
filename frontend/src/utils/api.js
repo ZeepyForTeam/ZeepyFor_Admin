@@ -15,3 +15,7 @@ export const post = (middleUrl, payload) => {
 export const postNoHeader = (middleUrl, payload) => {
     return axios.post(baseUrl + middleUrl, payload.body)
 };
+
+export const _delete = (middleUrl, payload) => {
+    return axios.delete(baseUrl + middleUrl, payload)
+};

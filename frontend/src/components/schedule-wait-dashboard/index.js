@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import React from 'react'
-import { get, post } from '../../utils/api';
+import { get, _delete } from '../../utils/api';
 import { redirect } from '../../utils/redirect';
 import { getCookie, deleteCookie } from '../../utils/cookie';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
@@ -11,6 +11,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import moment from 'moment'
 
 const DashboardBody = styled.div`
@@ -54,18 +55,18 @@ const ScheduleBody = styled.div`
     transition: all 0.1s ease;
 `;
 
-const ScheduleWaitDashboard = () => {
+const ScheduleWaitDashboard = ({ setErrorAlert, setSuccessAlert, setAlertMessage, }) => {
     const [page, setPage] = React.useState(1)
     const [totalElement, setTotalElement] = React.useState(null)
     const [totalPage, setTotalPage] = React.useState(null)
     const [jobList, setJobList] = React.useState(null)
+    const [selectJob, setSelectJob] = React.useState(null)
     const [currentBuildingList, setCurrentBuildingList] = React.useState(null)
 
     const getJobList = () => {
         get(`/api/jobs`, { headers: { Authorization: "Bearer " + getCookie("token") } })
             .then(response => {
                 let jobs = []
-                console.log(response.data)
                 for (let job of response.data) {
                     job.next_run_time = moment.unix(job.next_run_time).format('YYYY-MM-DD HH:mm:ss')
                     job.job_first_add_time = moment(job.job_first_add_time).format('YYYY-MM-DD HH:mm:ss')
@@ -76,10 +77,48 @@ const ScheduleWaitDashboard = () => {
                 // setTotalPage(response.data.totalPage)
                 // setTotalElement(response.data.total)
             }).catch(error => {
-                deleteCookie("token", "")
-                redirect("/login");
+                if (error.response.status === 422 || error.response.status === 401) {
+                    deleteCookie("token", "")
+                    redirect("/login");
+                } else {
+                    setAlertMessage("의도치 못한 버그 - 개발자에게 문의하세요")
+                    setErrorAlert(true)
+                    setTimeout(() => setErrorAlert(false), 2000);
+                }
             })
 
+    }
+
+    const deleteJob = () => {
+        if (selectJob === null) {
+            setAlertMessage("삭제할 스케줄을 선택해주세요")
+            setErrorAlert(true)
+            setTimeout(() => setErrorAlert(false), 2000);
+            return
+        }
+        _delete(`/api/jobs?_id=${selectJob.id}`, { headers: { Authorization: "Bearer " + getCookie("token") } })
+            .then(response => {
+                let jobs = []
+                for (let job of jobList) {
+                    if (job._id === selectJob.id) continue
+                    jobs.push(job)
+                }
+                setJobList(jobs)
+                setCurrentBuildingList(jobs)
+                setSelectJob(null)
+                setAlertMessage("작업삭제 성공")
+                setSuccessAlert(true)
+                setTimeout(() => setSuccessAlert(false), 2000);
+            }).catch(error => {
+                if (error.response.status === 422 || error.response.status === 401) {
+                    deleteCookie("token", "")
+                    redirect("/login");
+                } else {
+                    setAlertMessage("작업삭제 실패 - 개발자에게 문의하세요")
+                    setErrorAlert(true)
+                    setTimeout(() => setErrorAlert(false), 2000);
+                }
+            })
     }
 
     const columns = [
@@ -176,12 +215,43 @@ const ScheduleWaitDashboard = () => {
                     columns={columns}
                     pageSize={50}
                     rowsPerPageOptions={[100]}
-                    checkboxSelection
                     components={{
                         Toolbar: GridToolbar,
                     }}
+                    onCellClick={(params, event) => {
+                        setSelectJob(params)
+                    }}
                 />}
             </ScheduleBody>
+            <Box
+                sx={
+                    {
+                        display: 'flex',
+                        alignItems: 'flex-end',
+                        justifyContent: 'right',
+                        marginRight: '20px',
+                        paddingTop: '30px',
+                    }
+                }
+            >
+                <Button
+                    sx={
+                        {
+                            fontFamily: 'Noto Sans KR',
+                            fontWeight: 'bold',
+                            backgroundColor: '#FDF4DF !important',
+                            color: '#6289ED !important',
+                            minWidth: "200px",
+                            minHeight: "50px",
+                        }
+                    }
+                    startIcon={<DeleteOutlineIcon />}
+                    variant="contained"
+                    onClick={deleteJob}
+                >
+                    선택한 작업 삭제하기
+                </Button>
+            </Box>
         </DashboardBody>
     );
 }

@@ -54,7 +54,7 @@ const ScheduleBody = styled.div`
     transition: all 0.1s ease;
 `;
 
-const ScheduleDashboard = () => {
+const ScheduleDashboard = ({ setErrorAlert, setSuccessAlert, setAlertMessage, }) => {
     const [page, setPage] = React.useState(1)
     const [totalElement, setTotalElement] = React.useState(null)
     const [totalPage, setTotalPage] = React.useState(null)
@@ -75,8 +75,14 @@ const ScheduleDashboard = () => {
                 // setTotalPage(response.data.totalPage)
                 // setTotalElement(response.data.total)
             }).catch(error => {
-                deleteCookie("token", "")
-                redirect("/login");
+                if (error.response.status === 422 || error.response.status === 401) {
+                    deleteCookie("token", "")
+                    redirect("/login");
+                } else {
+                    setAlertMessage("의도치 못한 버그 - 개발자에게 문의하세요")
+                    setErrorAlert(true)
+                    setTimeout(() => setErrorAlert(false), 2000);
+                }
             })
 
     }
