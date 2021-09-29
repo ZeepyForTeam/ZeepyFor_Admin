@@ -19,21 +19,21 @@ const App = () => {
     const [alertMessage, setAlertMessage] = React.useState("")
     return (
         <BrowserRouter>
-            <Box sx={{ top: 0, left: 0, width: '100vw', position: 'absolute', }}>
+            <Box sx={{ top: 0, left: 0, width: '100vw', position: 'absolute', zIndex: 100000 }}>
                 <Collapse in={errorAlert}>
                     <Alert variant="filled" severity="error">
                         {alertMessage}
                     </Alert>
                 </Collapse>
             </Box>
-            <Box sx={{ top: 0, left: 0, width: '100vw', position: 'absolute', }}>
+            <Box sx={{ top: 0, left: 0, width: '100vw', position: 'absolute', zIndex: 100000 }}>
                 <Collapse in={warningAlert}>
                     <Alert variant="filled" severity="warning">
                         {alertMessage}
                     </Alert>
                 </Collapse>
             </Box>
-            <Box sx={{ top: 0, left: 0, width: '100vw', position: 'absolute', }}>
+            <Box sx={{ top: 0, left: 0, width: '100vw', position: 'absolute', zIndex: 100000 }}>
                 <Collapse in={successAlert}>
                     <Alert variant="filled" severity="success">
                         {alertMessage}
@@ -51,7 +51,11 @@ const App = () => {
                     <Schedule />
                 </Route>
                 <Route exact path="/schedule/register">
-                    <ScheduleRegister />
+                    <ScheduleRegister
+                        setErrorAlert={setErrorAlert}
+                        setSuccessAlert={setSuccessAlert}
+                        setAlertMessage={setAlertMessage}
+                    />
                 </Route>
                 <Route exact path="/schedule/wait">
                     <ScheduleWait />
@@ -60,7 +64,9 @@ const App = () => {
                     <Register />
                 </Route>
                 <Route exact path="/login">
-                    <Login setErrorAlert={setErrorAlert} setAlertMessage={setAlertMessage} />
+                    <Login
+                        setErrorAlert={setErrorAlert} setAlertMessage={setAlertMessage}
+                    />
                 </Route>
                 <Redirect path="*" to="/storage" />
             </Switch>

@@ -71,15 +71,13 @@ const ScheduleWaitDashboard = () => {
                     job.job_first_add_time = moment(job.job_first_add_time).format('YYYY-MM-DD HH:mm:ss')
                     jobs.push(job)
                 }
-                console.log(jobs)
                 setJobList(jobs)
                 setCurrentBuildingList(jobs)
                 // setTotalPage(response.data.totalPage)
                 // setTotalElement(response.data.total)
             }).catch(error => {
-                console.log(error)
-                // deleteCookie("token", "")
-                // redirect("/login");
+                deleteCookie("token", "")
+                redirect("/login");
             })
 
     }
