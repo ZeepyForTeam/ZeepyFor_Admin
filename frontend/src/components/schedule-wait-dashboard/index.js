@@ -54,7 +54,7 @@ const ScheduleBody = styled.div`
     transition: all 0.1s ease;
 `;
 
-const ScheduleDashboard = () => {
+const ScheduleWaitDashboard = () => {
     const [page, setPage] = React.useState(1)
     const [totalElement, setTotalElement] = React.useState(null)
     const [totalPage, setTotalPage] = React.useState(null)
@@ -62,11 +62,12 @@ const ScheduleDashboard = () => {
     const [currentBuildingList, setCurrentBuildingList] = React.useState(null)
 
     const getJobList = () => {
-        get(`/api/jobs/report`, { headers: { Authorization: "Bearer " + getCookie("token") } })
+        get(`/api/jobs`, { headers: { Authorization: "Bearer " + getCookie("token") } })
             .then(response => {
                 let jobs = []
+                console.log(response.data)
                 for (let job of response.data) {
-                    job.event_time = moment(job.event_time).format('YYYY-MM-DD HH:mm:ss')
+                    job.next_run_time = moment.unix(job.next_run_time).format('YYYY-MM-DD HH:mm:ss')
                     job.job_first_add_time = moment(job.job_first_add_time).format('YYYY-MM-DD HH:mm:ss')
                     jobs.push(job)
                 }
@@ -85,13 +86,11 @@ const ScheduleDashboard = () => {
 
     const columns = [
         { field: '_id', headerName: 'ID', width: 70, hide: true },
-        { field: 'event_code', headerName: '이벤트 코드', width: 200 },
         { field: 'nickname', headerName: '별칭', width: 130 },
         { field: 'job_first_add_time', headerName: '스케줄 삽입 시간', width: 200 },
         { field: 'run_type', headerName: '실행 작업', width: 200 },
         { field: 'job_type', headerName: '작업 방식', width: 200 },
-        { field: 'event_time', headerName: '발생시간', width: 200 },
-        { field: 'trace_back', headerName: '에러로그', width: 200 },
+        { field: 'next_run_time', headerName: '실행 예측 시간', width: 200 },
     ];
 
     React.useEffect(() => {
@@ -124,7 +123,7 @@ const ScheduleDashboard = () => {
 
     return (
         <DashboardBody>
-            <Header name="스케줄 로그 저장소"></Header>
+            <Header name="스케줄 대기 저장소"></Header>
             {/* <ConfigBody>
                 {totalElement && totalPage && <PageBody>
                     전체: {totalElement} | 전체 페이지 {totalPage} | 현재 페이지 {page}
@@ -189,4 +188,4 @@ const ScheduleDashboard = () => {
     );
 }
 
-export default ScheduleDashboard;
+export default ScheduleWaitDashboard;

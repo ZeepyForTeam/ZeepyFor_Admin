@@ -7,6 +7,7 @@ import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import AccessAlarmsIcon from '@mui/icons-material/AccessAlarms';
 import DescriptionIcon from '@mui/icons-material/Description';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import { useHistory } from "react-router-dom";
 import { deleteCookie } from '../../utils/cookie';
 import styled from 'styled-components';
@@ -110,6 +111,15 @@ const DrawerBar = () => {
                     </DrawerIcon>
                     <DrawerText>
                         스케줄 로그 저장소
+                    </DrawerText>
+                </DrawerItem>
+                <Divider />
+                <DrawerItem button onClick={() => { handleRoute("/schedule/wait") }}>
+                    <DrawerIcon>
+                        <HourglassEmptyIcon />
+                    </DrawerIcon>
+                    <DrawerText>
+                        스케줄링 대기 저장소
                     </DrawerText>
                 </DrawerItem>
                 <Divider />

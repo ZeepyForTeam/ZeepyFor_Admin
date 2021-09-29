@@ -21,11 +21,15 @@ class JobService:
     def __parse_job_data(self, datas):
         result = []
         for data in datas:
-            event_data_list = data._id.split("/")
-            data["nickname"] = event_data_list[0]
-            data["job_first_add_time"] = event_data_list[1]
-            data["run_type"] = event_data_list[2]
-            data["job_type"] = event_data_list[3]
+            append_data = {}
+            event_data_list = data["_id"].split("/")
+            append_data["_id"] = data["_id"]
+            append_data["nickname"] = event_data_list[0]
+            append_data["job_first_add_time"] = event_data_list[1]
+            append_data["run_type"] = event_data_list[2]
+            append_data["job_type"] = event_data_list[3]
+            append_data["next_run_time"] = data["next_run_time"]
+            result.append(append_data)
         return result
 
     def get_all(self):

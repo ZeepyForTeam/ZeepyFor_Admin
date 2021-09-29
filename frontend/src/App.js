@@ -9,6 +9,7 @@ import Storage from './pages/storage'
 import Test from './pages/test'
 import Schedule from './pages/schedule'
 import ScheduleRegister from './pages/schedule-register'
+import ScheduleWait from './pages/schedule-wait'
 import React from 'react'
 
 const App = () => {
@@ -43,19 +44,22 @@ const App = () => {
                 <Route exact path="/storage">
                     <Storage />
                 </Route>
-                <Route path="/test">
+                <Route exact path="/test">
                     <Test />
                 </Route>
-                <Route path="/schedule">
+                <Route exact path="/schedule">
                     <Schedule />
                 </Route>
-                <Route path="/schedule/register">
+                <Route exact path="/schedule/register">
                     <ScheduleRegister />
                 </Route>
-                <Route path="/register">
+                <Route exact path="/schedule/wait">
+                    <ScheduleWait />
+                </Route>
+                <Route exact path="/register">
                     <Register />
                 </Route>
-                <Route path="/login">
+                <Route exact path="/login">
                     <Login setErrorAlert={setErrorAlert} setAlertMessage={setAlertMessage} />
                 </Route>
                 <Redirect path="*" to="/storage" />
