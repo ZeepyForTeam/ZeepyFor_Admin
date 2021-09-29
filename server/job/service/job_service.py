@@ -1,7 +1,6 @@
  #-*- coding: utf-8 -*- 
 from flask import jsonify
 from repository.job_db_handler import JobDBHandler
-from repository.job_report_db_handler import JobReportDBHandler
 from job.scheduler.scheduler import Scheduler
 from execute.mock_executer import MockExecuter
 from execute.jobs.molit_api_job import (molit_api_cron_job, molit_api_job)
@@ -17,12 +16,23 @@ class JobService:
         self.scheduler = Scheduler()
         self.mock_executer = MockExecuter()
         self.job_repository = JobDBHandler()
-        self.job_report_repository = JobReportDBHandler()
         self.parse = MongoDataParser()
 
+    def __parse_job_data(self, datas):
+        result = []
+        for data in datas:
+            event_data_list = data._id.split("/")
+            data["nickname"] = event_data_list[0]
+            data["job_first_add_time"] = event_data_list[1]
+            data["run_type"] = event_data_list[2]
+            data["job_type"] = event_data_list[3]
+        return result
+
     def get_all(self):
-        data = self.job_report_repository.find_item()
-        response = jsonify(self.parse.parse_many(data))
+        data = self.job_repository.find_item()
+        parse_data = self.parse.parse_many(data)
+        body = self.__parse_job_data(parse_data)
+        response = jsonify(body)
         response.status_code = 200
         return response
 
