@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-const baseUrl = "http://localhost:5001"
-
+const baseUrl = process.env.REACT_APP_API_URL
+console.log(baseUrl)
+console.log("aaaaa")
 export const get = (middleUrl, payload) => {
     return axios.get(baseUrl + middleUrl, payload)
 };

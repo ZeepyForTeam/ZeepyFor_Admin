@@ -123,7 +123,7 @@ const ScheduleWaitDashboard = ({ setErrorAlert, setSuccessAlert, setAlertMessage
 
     const columns = [
         { field: '_id', headerName: 'ID', width: 70, hide: true },
-        { field: 'nickname', headerName: '별칭', width: 130 },
+        { field: 'nickname', headerName: '별칭', width: 200 },
         { field: 'job_first_add_time', headerName: '스케줄 삽입 시간', width: 200 },
         { field: 'run_type', headerName: '실행 작업', width: 200 },
         { field: 'job_type', headerName: '작업 방식', width: 200 },
