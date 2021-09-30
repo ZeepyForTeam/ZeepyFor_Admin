@@ -4,7 +4,7 @@ from pymongo.cursor import CursorType
 
 class AreaCodeDBHandler:
     def __init__(self):
-        host = "localhost"
+        host = "db"
         port = "27017"
         self.db_name = "zeepy_db"
         self.collection_name = "area"

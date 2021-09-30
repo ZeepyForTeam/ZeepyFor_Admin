@@ -7,7 +7,7 @@ class JobDate(Resource):
     def __init__(self):
         self.job_service = JobService()
     # 잡 등록
-    # @jwt_required()
+    @jwt_required()
     def post(self):
         args = self.__make_post_arg()
         return self.job_service.set_date_schedule(args)

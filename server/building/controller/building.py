@@ -14,6 +14,7 @@ class Building(Resource):
         return self.building_service.get_pagenate(args)
 
     # 빌딩 단일 업로드
+    @jwt_required()
     def post(self):
         args = self.__make_post_arg()
         return self.building_service.create(args)

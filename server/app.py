@@ -33,4 +33,4 @@ api.add_resource(JobDate, '/api/jobs/date') # 스케줄 일회용 잡 등록 컨
 api.add_resource(JobCron, '/api/jobs/cron') # 스케줄 주기 잡 등록 컨트롤러
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5000)

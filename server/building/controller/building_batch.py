@@ -9,6 +9,7 @@ class BuildingBatch(Resource):
         self.building_service = BuildingService()
 
     # 빌딩 단일 업로드
+    @jwt_required()
     def post(self):
         args = self.__make_post_arg()
         return self.building_service.create_many(args)

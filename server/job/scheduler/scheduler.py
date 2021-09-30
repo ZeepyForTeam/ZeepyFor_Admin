@@ -20,7 +20,7 @@ class Scheduler:
             'default': MongoDBJobStore(
                 database='zeepy_db', 
                 collection='jobs', 
-                host='localhost', 
+                host='db', 
                 port=27017
             )
         }  

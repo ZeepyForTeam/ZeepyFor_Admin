@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+    flask:
+        build: .
+        container_name: flask
+        restart: always
+        environment:
+            - APP_NAME=FlaskTest
+        ports:
+            - "5000:5000"
+        links:
+            - db
+
+    db:
+        image: mongo:4.2.1
+        ports:
+            - "27017:27017"
