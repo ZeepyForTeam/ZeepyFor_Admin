@@ -5,9 +5,9 @@ import json
 
 class ZeepyForServerHelper:
     def __init__(self):
-        # self.zeepy_for_server_url = "http://13.125.168.182:8080"
+        self.zeepy_for_server_url = "http://13.125.168.182:8080"
         self.token = ""
-        self.zeepy_for_server_url = "http://localhost:8080"
+        # self.zeepy_for_server_url = "http://localhost:8080"
         self.email = Settings.return_zeepy_admin_email()
         self.password = Settings.return_zeepy_admin_password()
 
